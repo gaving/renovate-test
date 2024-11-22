@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   traefik:
-    image: docker.io/traefik:saintmarcelin
+    image: docker.io/traefik:${TRAEFIK_TAG:-saintmarcelin}
     command:
       ##########################################################################
       # Static Configuration                                                   #
