@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  traefik:
+    image: docker.io/traefik:saintmarcelin
+    command:
+      ##########################################################################
+      # Static Configuration                                                   #
+      ##########################################################################
+      - --entrypoints.app.address=:443 # Front-end services
+      - --entrypoints.support.address=:8443 # Support services
+      - --providers.docker=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.swarmMode=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=traefik-public
+      - --providers.file.filename=/dyn.yml
+      - --providers.file.watch=true
+      - --api.debug=${TRAEFIK_API_DEBUG:-true}
+      - --log.level=${TRAEFIK_LOG_LEVEL:-DEBUG}
+      - --accesslog=${TRAEFIK_ACCESS_LOG:-true}
+    ports:
+      - "443:443"
+      - "8443:8443"
+    volumes:
+      # So that Traefik can listen to Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+    configs:
+      - source: traefik_conf_v1
+        target: /dyn.yml
+        mode: 444
+    networks:
+      - traefik-public
